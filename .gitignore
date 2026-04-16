@@ -4,3 +4,14 @@ __pycache__/
 .pytest_cache/
 outputs/
 .env
+.env.*
+!.env.example
+
+.DS_Store
+.idea/
+.vscode/
+
+dist/
+build/
+*.egg-info/
+.eggs/
