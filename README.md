@@ -25,6 +25,42 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 Copy `.env.example` to `.env` if you want to tune paths and limits (`OUTPUT_DIR`, `MAX_REACT_STEPS`, `MAX_REVISION_ROUNDS`, optional LLM settings).
 
+## Testing
+
+With the API running (`uvicorn` locally or `docker compose` on port 8000), you can smoke-test it in two ways.
+
+### Script (`scripts/test_api.py`)
+
+Uses only the Python standard library (no extra packages for the client).
+
+```bash
+# Fast: GET /health only
+python3 scripts/test_api.py --skip-summarize
+
+# Full pipeline: default public PDF URL (can take several minutes)
+python3 scripts/test_api.py
+
+# Another host or port
+API_BASE=http://127.0.0.1:8080 python3 scripts/test_api.py --skip-summarize
+# or
+python3 scripts/test_api.py --base-url http://127.0.0.1:8080 --paper-url "https://arxiv.org/pdf/XXXX.XXXXX.pdf"
+
+# Local PDF — path must be readable by the API process (e.g. absolute path on the server host)
+python3 scripts/test_api.py --pdf-path /absolute/path/to/paper.pdf
+```
+
+Optional flags: `--health-timeout`, `--summarize-timeout` (defaults 15s and 300s). On success, the script prints `output_path` from `POST /summarize`.
+
+### curl
+
+```bash
+curl -sS http://127.0.0.1:8000/health
+
+curl -sS -X POST http://127.0.0.1:8000/summarize \
+  -H 'Content-Type: application/json' \
+  -d '{"paper_url":"https://arxiv.org/pdf/1706.03762.pdf"}'
+```
+
 ## Docker
 
 ```bash
